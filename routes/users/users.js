@@ -6,6 +6,7 @@ const {
   validateUserSignup,
   validateUserLogin,
   validateUserSubscriptionPatch,
+  validateRepeatEmailForVerifyUser,
 } = require('./validation');
 
 const guard = require('../../helpers/guard');
@@ -41,5 +42,11 @@ router.patch(
 );
 
 router.get('/verify/:verificationToken', wrapError(ctrlUsers.verifyUser));
+
+router.post(
+  '/verify',
+  validateRepeatEmailForVerifyUser,
+  wrapError(ctrlUsers.repeatEmailForVerifyUser),
+);
 
 module.exports = router;

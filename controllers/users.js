@@ -1,8 +1,16 @@
 const jwt = require('jsonwebtoken');
 const path = require('path');
 const mkdirp = require('mkdirp');
+const crypto = require('crypto');
+
 const Users = require('../repository/users');
+
 const UploadService = require('../services/file-upload');
+const EmailService = require('../services/email/service');
+const {
+  CreateSenderSendGrid,
+  CreateSenderNodemailer,
+} = require('../services/email/sender');
 
 const CustomError = require('../helpers/customError');
 const { HttpCode, ResponseStatus } = require('../config/constants');
@@ -18,7 +26,23 @@ const signup = async (req, res) => {
     throw new CustomError(HttpCode.CONFLICT, 'Email in use');
   }
 
-  const newUser = await Users.create({ email, password, subscription });
+  const newUser = await Users.create({
+    email,
+    password,
+    subscription,
+    verifyToken: crypto.randomUUID(),
+  });
+
+  const emailService = new EmailService(
+    process.env.NODE_ENV,
+    new CreateSenderSendGrid(),
+  );
+
+  const statusEmail = await emailService.sendVerifyEmail(
+    newUser.email,
+    newUser.name,
+    newUser.verifyToken,
+  );
 
   return res.status(HttpCode.CREATED).json({
     status: ResponseStatus.SUCCESS,
@@ -28,6 +52,7 @@ const signup = async (req, res) => {
       email: newUser.email,
       subscription: newUser.subscription,
       avatar: newUser.avatar,
+      successEmail: statusEmail,
     },
   });
 };
@@ -136,6 +161,35 @@ const verifyUser = async (req, res) => {
   });
 };
 
+const repeatEmailForVerifyUser = async (req, res) => {
+  const { email } = req.body;
+  const user = await Users.findByEmail(email);
+
+  if (!user) {
+    throw new CustomError(HttpCode.NOT_FOUND, 'Not found');
+  }
+
+  const { name, verifyToken } = user;
+  const emailService = new EmailService(
+    process.env.NODE_ENV,
+    new CreateSenderNodemailer(),
+  );
+
+  const statusEmail = await emailService.sendVerifyEmail(
+    email,
+    name,
+    verifyToken,
+  );
+
+  return res.status(HttpCode.OK).json({
+    status: 'success',
+    code: HttpCode.OK,
+    data: {
+      message: 'Success',
+    },
+  });
+};
+
 module.exports = {
   signup,
   login,
@@ -144,4 +198,5 @@ module.exports = {
   updateSubscription,
   uploadAvatar,
   verifyUser,
+  repeatEmailForVerifyUser,
 };

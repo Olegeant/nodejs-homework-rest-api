@@ -3,11 +3,13 @@ const Joi = require('joi');
 const { Subscription } = require('../../config/constants');
 
 const patterns = {
+  name: /^[\w\sа-яА-Я]+$/,
   id: /^[\da-f]{24}$/,
   password: /^[\w~!@#$%^&*()+|\-=\\/{}[\]]{8,}$/,
 };
 
 const schemaUserSignup = Joi.object({
+  name: Joi.string().min(3).max(30).pattern(patterns.name).optional(),
   email: Joi.string().email().required(),
   password: Joi.string().min(8).pattern(patterns.password).required(),
   subscription: Joi.string()
@@ -24,6 +26,10 @@ const schemaUserSubscriptionPatch = Joi.object({
   subscription: Joi.string()
     .valid(Subscription.STARTER, Subscription.PRO, Subscription.BUSINESS)
     .required(),
+});
+
+const schemaRepeatEmailForVerifyUser = Joi.object({
+  email: Joi.string().email().required(),
 });
 
 const validate = async (schema, obj, res, next) => {
@@ -49,4 +55,8 @@ module.exports.validateUserLogin = async (req, res, next) => {
 
 module.exports.validateUserSubscriptionPatch = async (req, res, next) => {
   return await validate(schemaUserSubscriptionPatch, req.body, res, next);
+};
+
+module.exports.validateRepeatEmailForVerifyUser = async (req, res, next) => {
+  return await validate(schemaRepeatEmailForVerifyUser, req.body, res, next);
 };

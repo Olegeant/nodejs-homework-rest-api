@@ -8,6 +8,7 @@ const { Subscription } = require('../config/constants');
 
 const userSchema = new Schema(
   {
+    name: { type: String, default: 'Anonimous' },
     email: {
       type: String,
       required: [true, 'Email is required'],
