@@ -40,4 +40,6 @@ router.patch(
   wrapError(ctrlUsers.uploadAvatar),
 );
 
+router.get('/verify/:verificationToken', wrapError(ctrlUsers.verifyUser));
+
 module.exports = router;

@@ -1,11 +1,15 @@
 const User = require('../model/user');
 
-const findById = async id => {
-  return await User.findById(id);
+const findById = async userId => {
+  return await User.findById(userId);
 };
 
 const findByEmail = async email => {
   return await User.findOne({ email });
+};
+
+const findByVerifyToken = async verifyToken => {
+  return await User.findOne({ verifyToken });
 };
 
 const create = async credentials => {
@@ -13,8 +17,8 @@ const create = async credentials => {
   return await user.save();
 };
 
-const updateToken = async (id, token) => {
-  return await User.updateOne({ _id: id }, { token });
+const updateToken = async (userId, token) => {
+  return await User.updateOne({ _id: userId }, { token });
 };
 
 const updateSubscription = async (userId, body) => {
@@ -25,8 +29,16 @@ const updateSubscription = async (userId, body) => {
   );
 };
 
-const updateAvatar = async (id, avatar) => {
-  return await User.updateOne({ _id: id }, { avatar });
+const updateAvatar = async (userId, avatar) => {
+  return await User.updateOne({ _id: userId }, { avatar });
+};
+
+const updateVerifyToken = async (userId, verify, verifyToken) => {
+  return await User.findOneAndUpdate(
+    { _id: userId },
+    { verify, verifyToken },
+    { new: true },
+  );
 };
 
 module.exports = {
@@ -36,4 +48,6 @@ module.exports = {
   updateToken,
   updateSubscription,
   updateAvatar,
+  findByVerifyToken,
+  updateVerifyToken,
 };

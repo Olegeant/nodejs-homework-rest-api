@@ -120,6 +120,22 @@ const uploadAvatar = async (req, res) => {
   });
 };
 
+const verifyUser = async () => {
+  const user = await Users.findByVerifyToken(req.params.verificationToken);
+
+  if (!user) {
+    throw new CustomError(HttpCode.NOT_FOUND, 'Not found');
+  }
+
+  await Users.updateVerifyToken(user._id, true, null);
+
+  return res.status(HttpCode.OK).json({
+    status: ResponseStatus.SUCCESS,
+    code: HttpCode.OK,
+    data: { message: 'Verification successful' },
+  });
+};
+
 module.exports = {
   signup,
   login,
@@ -127,4 +143,5 @@ module.exports = {
   getCurrentUser,
   updateSubscription,
   uploadAvatar,
+  verifyUser,
 };
