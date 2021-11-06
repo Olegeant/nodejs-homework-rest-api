@@ -18,9 +18,9 @@ class EmailService {
 
   createEmailTemplate(name, verifyToken) {
     const mailGenerator = new Mailgen({
-      theme: 'default',
+      theme: 'neopolitan',
       product: {
-        name: 'noreply ContactsApp',
+        name: 'Contacts App',
         link: this.link,
       },
     });
@@ -29,7 +29,7 @@ class EmailService {
       body: {
         name,
         intro:
-          "Welcome to Contacts App! We're very excited to have you on board.",
+          'Welcome to Contacts App! We are very excited to have you on board.',
         action: {
           instructions:
             'To get started with Contacts App, please click the link below:',
@@ -39,6 +39,8 @@ class EmailService {
             link: `${this.link}/api/users/verify/${verifyToken}`,
           },
         },
+        outro:
+          "Need help, or have questions? Just reply to this email, we'd love to help.",
       },
     };
     return mailGenerator.generate(email);

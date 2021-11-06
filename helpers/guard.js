@@ -10,19 +10,15 @@ const guard = (req, res, next) => {
     let errorMessage = '';
 
     if (!user || err || token !== user.token) {
-      errorMessage = 'Not authorized';
-    }
-
-    if (!user.verify) {
-      errorMessage = 'User email not verified yet';
-    }
-
-    if (errorMessage) {
       return res.status(HttpCode.UNAUTHORIZED).json({
         status: 'error',
         code: HttpCode.UNAUTHORIZED,
-        message: errorMessage,
+        message: 'Not authorized',
       });
+    }
+
+    if (!user?.verify) {
+      errorMessage = 'User email not verified yet';
     }
 
     req.user = user;
