@@ -120,7 +120,7 @@ const uploadAvatar = async (req, res) => {
   });
 };
 
-const verifyUser = async () => {
+const verifyUser = async (req, res) => {
   const user = await Users.findByVerifyToken(req.params.verificationToken);
 
   if (!user) {
